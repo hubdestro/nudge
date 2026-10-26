@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo test
+      - name: CLI smoke test
+        shell: bash
+        env:
+          NUDGE_HOME: ${{ runner.temp }}/nudge-home
+        run: |
+          cargo build
+          N=target/debug/nudge
+          $N --version
+          $N config set idle 2m
+          test "$($N config get idle)" = "2m"
+          $N start
+          $N status
+          $N pause
+          $N stop

@@ -1,0 +1,43 @@
+[package]
+name = "nudge"
+version = "0.1.0"
+edition = "2021"
+description = "Keep your chat status green without ever moving your mouse. A tiny cross-platform CLI."
+license = "MIT"
+authors = ["Hubdestro"]
+repository = "https://github.com/hubdestro/nudge"
+homepage = "https://github.com/hubdestro/nudge"
+readme = "README.md"
+keywords = ["teams", "presence", "idle", "keep-awake", "cli"]
+categories = ["command-line-utilities"]
+rust-version = "1.82"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std", "serde"] }
+dirs = "6"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+x11rb = { version = "0.13", features = ["screensaver", "xtest"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_System_Power",
+    "Win32_System_Registry",
+    "Win32_System_StationsAndDesktops",
+    "Win32_System_SystemInformation",
+    "Win32_System_Threading",
+    "Win32_UI_Input_KeyboardAndMouse",
+] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
